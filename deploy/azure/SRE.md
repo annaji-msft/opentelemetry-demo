@@ -28,6 +28,13 @@ mode alone does not prohibit external MCP/Teams/email writes; do not add those
 integrations. Source access must be reported unavailable unless an actual source
 read succeeds in the investigator. A separately verified repo connection is not
 proof of that runtime capability.
+Also compare the investigator's cached checkout HEAD with the remote branch HEAD
+using actual source reads. Updating a same-branch source registration can retain
+a stale checkout; a successful PUT/connectivity test is not a refresh guarantee.
+Do not assume a sync route exists. If refreshing requires removing/recreating
+the registration, obtain separate human approval and preserve the exact alias,
+URL, branch and authentication scope. Until then, report the cached source
+revision explicitly and treat newer deployment code as unavailable.
 `commonTools` is a separate built-in-tool property from `tools`.
 The setup
 requests `commonTools=[RunAzCliReadCommands]` as well.
