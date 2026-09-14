@@ -157,6 +157,13 @@ traces, logs and metrics at beta stability. This deployer preserves OTLP,
 PostgreSQL, Kafka, Valkey, nginx, HTTP health and ad Prometheus receivers, span
 metrics, upstream span/log normalization and payment/email redaction. It exports
 in parallel to Azure Monitor and local Jaeger/Prometheus/OpenSearch.
+The local OpenSearch log pipeline percent-encodes dots in flat log-attribute
+keys (`http.request.method` becomes `http%2Erequest%2Emethod`, with literal
+percent signs encoded first). This avoids scalar/object mapping collisions
+without discarding attribute values. Azure Monitor retains original attribute
+names. New local logs use `otel-logs-aca-*`; earlier indices are not deleted.
+Single-node OpenSearch can report yellow health because a replica shard cannot
+be allocated on its only node; inspect ingestion rather than assuming green HA.
 
 Sources:
 [exporter configuration and mapping](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.159.0/exporter/azuremonitorexporter),

@@ -65,13 +65,26 @@ class DeploymentTests(unittest.TestCase):
         self.assertNotIn("docker_stats", receivers)
         self.assertNotIn("host_metrics", receivers)
         self.assertTrue({"kafkametrics", "postgresql", "redis", "prometheus/ad", "nginx"} <= set(receivers))
-        self.assertEqual(set(config["service"]["pipelines"]), {"traces", "metrics", "logs"})
-        for pipeline in config["service"]["pipelines"].values():
-            self.assertIn("azure_monitor", pipeline["exporters"])
+        self.assertEqual(set(config["service"]["pipelines"]), {"traces", "metrics", "logs", "logs/opensearch"})
+        for signal in ("traces", "metrics", "logs"):
+            self.assertIn("azure_monitor", config["service"]["pipelines"][signal]["exporters"])
         self.assertIn("transform/redact_sensitive_data", config["service"]["pipelines"]["traces"]["processors"])
         self.assertNotIn("opamp", config["service"]["extensions"])
         self.assertNotIn("InstrumentationKey=", collector_config())
         self.assertFalse(config["processors"]["resource_detection"]["override"])
+
+    def test_opensearch_key_encoding_is_local_only(self):
+        config = yaml.safe_load(collector_config())
+        pipelines = config["service"]["pipelines"]
+        self.assertNotIn("transform/opensearch_keys", pipelines["logs"]["processors"])
+        self.assertIn("transform/opensearch_keys", pipelines["logs/opensearch"]["processors"])
+        self.assertEqual(pipelines["logs/opensearch"]["exporters"], ["opensearch"])
+        self.assertEqual(config["exporters"]["opensearch"]["logs_index"], "otel-logs-aca")
+        statements = config["processors"]["transform/opensearch_keys"]["log_statements"][0]["statements"]
+        self.assertEqual(statements, [
+            'replace_all_patterns(attributes, "key", "%", "%25")',
+            'replace_all_patterns(attributes, "key", "[.]", "%2E")',
+        ])
 
     def test_gateway_has_no_admin_routes_or_fault_filter(self):
         config = yaml.safe_load(proxy_config())

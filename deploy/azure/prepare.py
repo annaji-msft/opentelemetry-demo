@@ -95,10 +95,22 @@ def collector_config():
     for signal, exporters in {
         "traces": ["otlp_grpc/jaeger", "span_metrics", "azure_monitor"],
         "metrics": ["otlp_http/prometheus", "azure_monitor"],
-        "logs": ["opensearch", "azure_monitor"],
+        "logs": ["azure_monitor"],
     }.items():
         pipelines[signal]["exporters"] = exporters
         pipelines[signal]["processors"].append("batch")
+    # Encode literal percent signs before dots so flat keys remain distinct, not object paths.
+    config["processors"]["transform/opensearch_keys"] = {
+        "error_mode": "propagate",
+        "log_statements": [{"context": "log", "statements": [
+            'replace_all_patterns(attributes, "key", "%", "%25")',
+            'replace_all_patterns(attributes, "key", "[.]", "%2E")',
+        ]}],
+    }
+    pipelines["logs/opensearch"] = copy.deepcopy(pipelines["logs"])
+    pipelines["logs/opensearch"]["exporters"] = ["opensearch"]
+    pipelines["logs/opensearch"]["processors"].insert(-1, "transform/opensearch_keys")
+    config["exporters"]["opensearch"]["logs_index"] = "otel-logs-aca"
     return yaml_text(config)
 
 
