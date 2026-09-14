@@ -1,0 +1,180 @@
+{
+  "resolvedAt": "2026-09-14T21:07:13.623819+00:00",
+  "platform": "linux/amd64",
+  "images": {
+    "busybox:1.37.0": {
+      "image": "busybox@sha256:7a3ebe5bfd1a4a19797d20b0c0bb39d44393e9a03fd852c0865b0f540d868df0",
+      "created": "2024-09-26T21:31:42Z",
+      "sourceRevision": null,
+      "compressedBytes": 2211507
+    },
+    "ghcr.io/open-feature/flagd:v0.16.0": {
+      "image": "ghcr.io/open-feature/flagd@sha256:128e5f6a0d34dc3224c762167997db767b034c0bd660db15a42fc487b5df0541",
+      "created": "2026-06-01T16:55:49.879961979Z",
+      "sourceRevision": "80b9e9548163c1adbd28d45ca52364956e7fa08f",
+      "compressedBytes": 46066507
+    },
+    "ghcr.io/open-telemetry/demo:latest-accounting": {
+      "image": "ghcr.io/open-telemetry/demo@sha256:6826231a5297914b4376390fc42e62a0f347609ab839a632f34393b5be13ca69",
+      "created": "2026-09-11T12:37:24.995736381Z",
+      "sourceRevision": null,
+      "compressedBytes": 115749696
+    },
+    "ghcr.io/open-telemetry/demo:latest-ad": {
+      "image": "ghcr.io/open-telemetry/demo@sha256:5269850b192ab2fa4ba61bcc598c39103c9721862028983764c0c651cf6b4df0",
+      "created": "2026-09-12T00:22:24.869105445Z",
+      "sourceRevision": null,
+      "compressedBytes": 193967139
+    },
+    "ghcr.io/open-telemetry/demo:latest-cart": {
+      "image": "ghcr.io/open-telemetry/demo@sha256:af033fc3e1636de3d53424f63c32b269876b8d6651bf455807639a03680ce4a5",
+      "created": "2026-09-11T11:55:25.242884324Z",
+      "sourceRevision": null,
+      "compressedBytes": 58817231
+    },
+    "ghcr.io/open-telemetry/demo:latest-checkout": {
+      "image": "ghcr.io/open-telemetry/demo@sha256:4b4d7148a18af603fd47e611a3daf11c295ad180ae30920c983058239d3961f1",
+      "created": "2026-09-11T12:38:15.770002214Z",
+      "sourceRevision": null,
+      "compressedBytes": 14695689
+    },
+    "ghcr.io/open-telemetry/demo:latest-currency": {
+      "image": "ghcr.io/open-telemetry/demo@sha256:69c5331653c9142bebb1471c443f55def94ebc70bb2544dd8e8f26c8811bae20",
+      "created": "2026-09-11T12:00:21.347774843Z",
+      "sourceRevision": null,
+      "compressedBytes": 41338528
+    },
+    "ghcr.io/open-telemetry/demo:latest-email": {
+      "image": "ghcr.io/open-telemetry/demo@sha256:7336f44371e13f98f02b58cfef8467f0f1d0aed73fc1a397a212ebb2a48344a3",
+      "created": "2026-09-14T00:24:44.399655017Z",
+      "sourceRevision": null,
+      "compressedBytes": 103718301
+    },
+    "ghcr.io/open-telemetry/demo:latest-flagd-ui": {
+      "image": "ghcr.io/open-telemetry/demo@sha256:16a141867e6cb470256583a801b480d5b09b7951160bf2d9d1671513ad95b754",
+      "created": "2026-09-14T00:27:00.668145761Z",
+      "sourceRevision": null,
+      "compressedBytes": 53072030
+    },
+    "ghcr.io/open-telemetry/demo:latest-fraud-detection": {
+      "image": "ghcr.io/open-telemetry/demo@sha256:c17052611ec7e3662c49e6bb36f749c918f478cf664fe9e8f5aa37917f472384",
+      "created": "2026-09-11T11:56:19.093616679Z",
+      "sourceRevision": null,
+      "compressedBytes": 159185960
+    },
+    "ghcr.io/open-telemetry/demo:latest-frontend": {
+      "image": "ghcr.io/open-telemetry/demo@sha256:6765ac7b3f7eb39542fa68333fb2382525e26867bd269ef57e03d2201bb9ef6b",
+      "created": "2026-09-11T12:40:10.172221734Z",
+      "sourceRevision": null,
+      "compressedBytes": 228549598
+    },
+    "ghcr.io/open-telemetry/demo:latest-frontend-proxy": {
+      "image": "ghcr.io/open-telemetry/demo@sha256:3db9517d21202e3833fad9726c8cf06a7f970e8d9e313da062eecba88703263e",
+      "created": "2026-09-11T12:51:29.817936513Z",
+      "sourceRevision": null,
+      "compressedBytes": 73810006
+    },
+    "ghcr.io/open-telemetry/demo:latest-image-provider": {
+      "image": "ghcr.io/open-telemetry/demo@sha256:458e359f03a6380358ddf3f3502dd3aa7e91664c943f23adccd3c2ad98df6704",
+      "created": "2026-09-12T00:21:16.614624665Z",
+      "sourceRevision": "eb142eabcc0a3e282aea6f1e5592cfe773e86321",
+      "compressedBytes": 38083651
+    },
+    "ghcr.io/open-telemetry/demo:latest-kafka": {
+      "image": "ghcr.io/open-telemetry/demo@sha256:a567d9bbb8d7114e8b57d719a611908dedb78f55cbc65af1bb598ed99f0088d4",
+      "created": "2026-09-12T00:21:24.520837327Z",
+      "sourceRevision": null,
+      "compressedBytes": 260376950
+    },
+    "ghcr.io/open-telemetry/demo:latest-load-generator": {
+      "image": "ghcr.io/open-telemetry/demo@sha256:a7dd34f3c971370139072639b78483fc968efd86aff607bf64aaf74114db128b",
+      "created": "2026-09-13T00:25:38.965161435Z",
+      "sourceRevision": null,
+      "compressedBytes": 551790195
+    },
+    "ghcr.io/open-telemetry/demo:latest-opamp-server": {
+      "image": "ghcr.io/open-telemetry/demo@sha256:5866936489585c5c1635821303d3b12e43eb2aa39f55af8e63bf391faf395239",
+      "created": "2026-09-11T12:37:22.076296928Z",
+      "sourceRevision": null,
+      "compressedBytes": 9328966
+    },
+    "ghcr.io/open-telemetry/demo:latest-opensearch": {
+      "image": "ghcr.io/open-telemetry/demo@sha256:88f76f60ab067382af28113d25d604f9d6cb51d8a7af47a972f0c2798ab8cc26",
+      "created": "2026-09-11T11:56:13.426521363Z",
+      "sourceRevision": null,
+      "compressedBytes": 1131231544
+    },
+    "ghcr.io/open-telemetry/demo:latest-payment": {
+      "image": "ghcr.io/open-telemetry/demo@sha256:3f09cd24fbab6c5ea7ea082897e10bcedc207e19c15e3f0446b12d75d7de4e03",
+      "created": "2026-09-11T11:55:23.337842694Z",
+      "sourceRevision": null,
+      "compressedBytes": 71451591
+    },
+    "ghcr.io/open-telemetry/demo:latest-product-catalog": {
+      "image": "ghcr.io/open-telemetry/demo@sha256:3f458dd916961d8684562551a77da3402079aa24d48236d5e18f1feb06f5bf29",
+      "created": "2026-09-11T11:56:21.283061762Z",
+      "sourceRevision": null,
+      "compressedBytes": 14341284
+    },
+    "ghcr.io/open-telemetry/demo:latest-quote": {
+      "image": "ghcr.io/open-telemetry/demo@sha256:b7d6db911ea508a6fc5707b605160d94c1ee8f8d55f8d99ff9f7125e4b48b154",
+      "created": "2026-09-11T12:38:09.841488182Z",
+      "sourceRevision": null,
+      "compressedBytes": 48953583
+    },
+    "ghcr.io/open-telemetry/demo:latest-recommendation": {
+      "image": "ghcr.io/open-telemetry/demo@sha256:af82966dcd082da8b1ac4c235569941983521b78fa576a8759b263ac04f95181",
+      "created": "2026-09-11T11:55:25.403587547Z",
+      "sourceRevision": null,
+      "compressedBytes": 37441467
+    },
+    "ghcr.io/open-telemetry/demo:latest-shipping": {
+      "image": "ghcr.io/open-telemetry/demo@sha256:42ed8d858b0edaf553578b4887eee823d7e24ade7f42a6ae31c6bfcf6eee7d2a",
+      "created": "2026-09-12T00:27:11.794627431Z",
+      "sourceRevision": null,
+      "compressedBytes": 18309974
+    },
+    "ghcr.io/open-telemetry/demo:latest-telemetry-docs": {
+      "image": "ghcr.io/open-telemetry/demo@sha256:a481cc69cb91797c549927119d5ca66716fa9d1c49b57623c93fd802d715beda",
+      "created": "2026-09-11T12:37:20.499994437Z",
+      "sourceRevision": "7aa47c1f70f442c9e60dfda36dfefa1a00c5f7b5",
+      "compressedBytes": 40377576
+    },
+    "ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.159.0": {
+      "image": "ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib@sha256:4f4276c07cee9055f2ab630a86330243f85e208c388ee697bea2a44dab896c3f",
+      "created": "2026-08-18T01:15:51.250935187Z",
+      "sourceRevision": "f817832365a9a2b829bc7c25feffcf8834585dea",
+      "compressedBytes": 108609486
+    },
+    "ghcr.io/valkey-io/valkey:9.0.4-alpine3.23": {
+      "image": "ghcr.io/valkey-io/valkey@sha256:b559f9babc64e52c9eefc8734e392707cebf4264be7acf5f7b69ba484e053367",
+      "created": "2026-07-14T22:54:33.760373728Z",
+      "sourceRevision": null,
+      "compressedBytes": 18092295
+    },
+    "grafana/grafana:13.1.0": {
+      "image": "grafana/grafana@sha256:6ea068891652aa6a65ca9065c26b89de939653803c836426970305c11fd00534",
+      "created": "2026-06-23T07:16:42Z",
+      "sourceRevision": null,
+      "compressedBytes": 377921851
+    },
+    "postgres:18.4": {
+      "image": "postgres@sha256:4cc13dede823cab4e05290c7fb3350fb4e599ecabd9b07e6706b5d5e8f5bc929",
+      "created": "2026-08-05T00:36:43.737001857Z",
+      "sourceRevision": null,
+      "compressedBytes": 162351946
+    },
+    "quay.io/jaegertracing/jaeger:2.19.0": {
+      "image": "quay.io/jaegertracing/jaeger@sha256:ad8ea2c1d91fa1a788641717b96a50aed9ba12a10cf937685fd07095c81246fa",
+      "created": "2026-06-03T15:29:17.437394714Z",
+      "sourceRevision": null,
+      "compressedBytes": 56574575
+    },
+    "quay.io/prometheus/prometheus:v3.13.1": {
+      "image": "quay.io/prometheus/prometheus@sha256:bd2dcadfb0d1096e2a4c21817ac7af918e2f19ff628e4bf25fd67a924c13dd80",
+      "created": "2026-07-10T08:49:03.827956727Z",
+      "sourceRevision": null,
+      "compressedBytes": 106686594
+    }
+  }
+}

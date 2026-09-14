@@ -1,0 +1,42 @@
+# Copyright The OpenTelemetry Authors
+# SPDX-License-Identifier: Apache-2.0
+
+name: ACA baseline configuration
+
+on:
+  pull_request:
+    paths:
+      - "deploy/azure/**"
+      - "compose*.yaml"
+      - ".env"
+      - "src/flagd/**"
+      - "src/otel-collector/**"
+      - ".github/workflows/aca-baseline.yml"
+  push:
+    paths:
+      - "deploy/azure/**"
+      - "compose*.yaml"
+      - ".env"
+      - "src/flagd/**"
+      - "src/otel-collector/**"
+      - ".github/workflows/aca-baseline.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+      - name: Install configuration parser
+        run: python -m pip install -r deploy/azure/requirements.txt
+      - name: Validate deployment and telemetry gates
+        run: python -m unittest discover -s deploy/azure -p 'test_*.py' -v
+      - name: Compile infrastructure without deploying
+        run: az bicep build --file deploy/azure/main.bicep

@@ -1,0 +1,10 @@
+# Copyright The OpenTelemetry Authors
+# SPDX-License-Identifier: Apache-2.0
+
+change_type: enhancement
+component: deployment
+note: Add a full-demo Azure Container Apps adaptation with Azure Monitor export and end-to-end verification scripts.
+issues: []
+subtext: |-
+  Keeps upstream business services and internal observability, with private fault controls,
+  immutable image references, scoped deployment previews and disposable demo state.

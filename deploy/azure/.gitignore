@@ -1,0 +1,5 @@
+main.json
+service.json
+*.parameters.json
+__pycache__/
+.venv/

@@ -1,0 +1,17 @@
+# Copyright The OpenTelemetry Authors
+# SPDX-License-Identifier: Apache-2.0
+
+file_format: definition/2
+attribute_groups:
+  - id: service.aca
+    visibility: public
+    brief: Resource correlation attributes for services deployed to Azure Container Apps
+    stability: development
+    attributes:
+      - ref: service.name
+      - ref: service.namespace
+      - ref: service.version
+      - ref: service.instance.id
+      - ref: deployment.environment.name
+      - ref: deployment.id
+      - ref: vcs.ref.head.revision
