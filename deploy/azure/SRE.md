@@ -43,6 +43,27 @@ read commands and obeyed the TEST early-stop guide. This demonstrates observed
 behavior, not hard tool or IAM isolation. Full scope restrictions are repeated
 in the handler guide because that guide was visibly injected into the incident.
 
+## Commissioning status
+
+The September 14, 2026 deployment exercised real shop checkout, distributed
+Azure telemetry and native alert-to-investigation routing. Both permanent
+request-failure and telemetry-gap rules are enabled in that demo, scoped to its
+dedicated workspace, with no action groups. The native response filter is
+enabled in Review mode and excludes TEST; both temporary test rules and the
+separate test filter are disabled.
+
+The corrected investigator queried real successful checkout spans and fresh
+application signals using scoped Azure reads, without remediation, terminal
+execution or approval requests. Synthetic routing tests did not inject faults
+or establish outage detection under a real failure. The registered source
+checkout remains an older feature-branch snapshot: refresh is pending separate
+human approval, not implied by successful telemetry verification. No hard tool
+or IAM isolation claim is made.
+
+The generators below intentionally remain disabled-by-default for new
+deployments; this recorded activation is not permission to enable another
+environment without its own healthy-baseline checks.
+
 ## Generate and review configuration
 
 ```powershell
