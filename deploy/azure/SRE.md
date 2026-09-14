@@ -1,5 +1,8 @@
 # Native SRE incident investigation
 
+For a new clone, use [the quickstart](QUICKSTART.md), including its argument-safe
+Azure CLI wrapper and separate app/agent resource inputs.
+
 This is an explicitly authorized extension to the healthy baseline: Azure Monitor
 alerts for **only this application** can start an investigation in the existing
 hosted SRE Agent. No separate investigator service, model deployment, action
@@ -108,6 +111,7 @@ data-plane API as version-sensitive and re-read live responses after writes.
 | Handler, update | `POST` to the same handler path |
 | Fork source | `PUT /api/v2/repos/{existing-source-alias}`, body `source.json`; preserve the live alias and auth |
 | Source connectivity | `POST /api/v2/repos/{existing-source-alias}/test` |
+| Common health prompt | GET then PUT `/api/v2/extendedAgent/commonprompts/{filter-id}-health`, body `health-prompt.json` |
 | Incident platform | ARM `PATCH` existing agent, API `2026-01-01`, body `incident-platform.patch.json` |
 
 The source and extended-agent payloads require a top-level `name`. The filter
@@ -128,6 +132,35 @@ the matching object's purpose/scope, then choose PUT only for a new ID and POST
 for an existing ID. Repeated PUT on an existing handler returns HTTP 409 rather
 than updating it. Re-read each object and compare the effective values after
 the write; the document generator intentionally does not perform these writes.
+
+`requests.json` records these methods and audiences for the chosen object names.
+The common prompt envelope includes `name`, `type: CommonPrompt`, `tags` and
+`properties.prompt`. GET the exact existing prompt, preserve other envelope and
+property fields, replace only the reviewed prompt, then PUT and verify
+GET `properties.prompt`. Its tested audience is the same public service GUID
+used for legacy incident management above. A text copy is also generated for
+inspection or use in the hosted UI.
+
+For agent operations, supply the explicit **agent** subscription and ARM ID;
+generated application scope remains the separate app subscription/group.
+The Azure Monitor rule resources belong to the app group. Do not confuse them
+with the agent's self-telemetry.
+
+After creating the permanent rules disabled and passing the real baseline and
+query-local predicate tests, use ARM PATCH with
+`{"properties":{"enabled":true}}` on each reviewed scheduled-query-rule ID
+(`api-version=2023-12-01`). Read back enabled state, exact workspace scopes,
+unchanged predicates and empty action groups. Prefer an `@private-file.json`
+body over shell-embedded JSON.
+Use each generated alert display name as its Azure rule name as well (URL-escape
+it in REST paths). The permanent native title filter expects `Astronomy Shop`;
+an arbitrary rule name that lacks that text is not a verified routing setup.
+
+For a temporary native test filter, the tested lifecycle is POST
+`/api/v1/incidentplayground/filters/{id}/enable` or `/disable`, **without a body**.
+New filters default enabled; explicitly disable a new test filter until ready.
+The [demo walkthrough](DEMO.md#separately-approved-synthetic-routing-exercise)
+provides the separately approved expiring test and mandatory cleanup procedure.
 
 The ARM patch changes only `incidentManagementConfiguration.type` to `AzMonitor`;
 it does not replace the agent or change identities/RBAC. Preserve the existing
@@ -169,6 +202,14 @@ Require evidence that the final investigation stayed within exact app scope.
 An earlier commissioning run performed broad resource-group **metadata**
 discovery; the instructions were tightened to forbid it. This was not a grant of
 additional permissions and must not be represented as strict IAM isolation.
+
+The native incident lifecycle can acknowledge an Azure alert. Disabling a test
+rule can leave a retained alert's monitor condition Fired while its alert state
+is Acknowledged. The boundary is **no automatic application remediation**, not
+a promise of zero incident-metadata writes. The commissioned runtime identity
+already held Monitoring Contributor; a Reader-only replacement for the complete
+scanner/acknowledgment flow has not been validated. Tighter IAM is a separate
+hardening exercise, not an automatic role change in this setup.
 
 Mitigation, fault injection, external notifications and production actions remain
 outside this integration. The output is an evidence-backed investigation and

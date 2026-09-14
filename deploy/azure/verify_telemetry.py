@@ -5,16 +5,14 @@
 
 import argparse
 import json
-import shutil
-import subprocess
 import time
+
+from azure_cli import run
 
 
 def query(subscription, workspace, kql):
-    # Windows az.cmd does not reliably forward multiline argument values.
-    kql = " ".join(kql.splitlines()).strip()
-    result = subprocess.run([
-        shutil.which("az"), "monitor", "log-analytics", "query",
+    result = run([
+        "monitor", "log-analytics", "query",
         "--subscription", subscription, "--workspace", workspace,
         "--analytics-query", kql, "--output", "json", "--only-show-errors",
     ], capture_output=True, text=True, encoding="utf-8", check=False)

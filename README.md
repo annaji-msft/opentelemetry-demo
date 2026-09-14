@@ -46,6 +46,10 @@ your preferred deployment method:
 
 - [Docker](https://opentelemetry.io/docs/demo/docker_deployment/)
 - [Kubernetes](https://opentelemetry.io/docs/demo/kubernetes_deployment/)
+- [Azure Container Apps + Azure Monitor + hosted SRE Agent](deploy/azure/QUICKSTART.md)
+  (this fork): [architecture and resources](deploy/azure/ARCHITECTURE.md),
+  [deployment reference](deploy/azure/README.md), and
+  [safe demo walkthrough](deploy/azure/DEMO.md).
 
 ## Documentation
 

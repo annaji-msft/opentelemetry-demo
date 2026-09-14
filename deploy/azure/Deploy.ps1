@@ -10,11 +10,12 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+function Invoke-AzureCli { python "$PSScriptRoot\azure_cli.py" @args }
 $parameters = Get-Content -LiteralPath $ParameterFile -Raw | ConvertFrom-Json
 $prefix = $parameters.parameters.prefix.value
 $names = @($parameters.parameters.apps.value.services.name) +
     @("$prefix-env", "$prefix-logs", "$prefix-insights")
-$existing = az resource list --subscription $SubscriptionId --resource-group $ResourceGroup -o json | ConvertFrom-Json
+$existing = Invoke-AzureCli resource list --subscription $SubscriptionId --resource-group $ResourceGroup -o json | ConvertFrom-Json
 if ($LASTEXITCODE -ne 0) { throw 'Cannot inspect existing resources.' }
 foreach ($resource in $existing) {
     if ($resource.name -in $names -and $resource.tags.managedBy -ne 'astronomy-aca') {
@@ -26,9 +27,9 @@ $arguments = @(
     '--name', "$prefix-baseline", '--template-file', "$PSScriptRoot\main.bicep",
     '--parameters', "@$ParameterFile", '--only-show-errors'
 )
-az deployment group validate @arguments --query 'properties.provisioningState' -o tsv
+Invoke-AzureCli deployment group validate @arguments --query 'properties.provisioningState' -o tsv
 if ($LASTEXITCODE -ne 0) { throw 'ARM validation failed.' }
-$preview = az deployment group what-if @arguments --result-format ResourceIdOnly --no-pretty-print -o json | ConvertFrom-Json
+$preview = Invoke-AzureCli deployment group what-if @arguments --result-format ResourceIdOnly --no-pretty-print -o json | ConvertFrom-Json
 if ($LASTEXITCODE -ne 0) { throw 'Deployment preview failed.' }
 foreach ($change in $preview.changes) {
     $name = ($change.resourceId -split '/')[-1]
@@ -56,7 +57,7 @@ if ($Apply) {
             $waveArguments = @($arguments | ForEach-Object {
                 if ($_ -eq "@$ParameterFile") { "@$waveFile" } else { $_ }
             })
-            $outputs = az deployment group create @waveArguments --query 'properties.outputs' -o json | ConvertFrom-Json
+            $outputs = Invoke-AzureCli deployment group create @waveArguments --query 'properties.outputs' -o json | ConvertFrom-Json
             if ($LASTEXITCODE -ne 0) { throw 'Deployment wave failed.' }
             python "$PSScriptRoot\verify_revisions.py" --subscription $SubscriptionId `
                 --resource-group $ResourceGroup --parameters $waveFile --timeout 600

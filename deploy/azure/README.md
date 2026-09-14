@@ -1,5 +1,9 @@
 # Astronomy Shop on Azure Container Apps
 
+For a new clone, start with [the quickstart](QUICKSTART.md). See
+[architecture and resources](ARCHITECTURE.md), [the safe demo](DEMO.md), and
+[native SRE configuration](SRE.md) for the complete workflow.
+
 This fork adapts the **full** `compose.yaml` + `compose.full.yaml` +
 `compose.observability.yaml` model, not a replacement application. The translator
 fails if the upstream service inventory changes. It currently deploys all 28

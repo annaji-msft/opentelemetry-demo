@@ -58,3 +58,11 @@ src/frontend/cypress/screenshots
 src/shipping/target/
 
 !src/currency/build
+
+# ACA generated credentials, live SRE configuration and private verification evidence
+*.parameters.json
+*.parameters.json.*
+*.event.json
+**/astronomy-demo-private/
+/deploy/azure/generated/
+/deploy/azure/main.json

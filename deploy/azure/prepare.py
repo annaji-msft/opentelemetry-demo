@@ -15,6 +15,8 @@ from pathlib import Path
 
 import yaml
 
+from artifacts import private_path
+
 ROOT = Path(__file__).resolve().parents[2]
 HERE = Path(__file__).resolve().parent
 # Compose substitutions in .env and environment entries, not collector ${env:...}.
@@ -402,8 +404,8 @@ def config_digest():
     files = {
         ROOT / ".env", ROOT / "otel-config.yml",
         ROOT / "compose.yaml", ROOT / "compose.full.yaml", ROOT / "compose.observability.yaml",
-        HERE / "prepare.py", HERE / "main.bicep", HERE / "service.bicep", HERE / "images.lock.json",
-        HERE / "Deploy.ps1", HERE / "verify_revisions.py",
+        HERE / "prepare.py", HERE / "artifacts.py", HERE / "main.bicep", HERE / "service.bicep", HERE / "images.lock.json",
+        HERE / "Deploy.ps1", HERE / "verify_revisions.py", HERE / "azure_cli.py",
     }
     for directory in ("flagd", "frontend-proxy", "grafana", "jaeger", "otel-collector", "postgresql", "prometheus"):
         files.update(p for p in (ROOT / "src" / directory).rglob("*") if p.is_file())
@@ -420,9 +422,11 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--deployment-id", required=True)
     parser.add_argument("--prefix", default="astronomy-demo")
+    parser.add_argument("--location", help="Azure resource location; defaults to the resource group's location")
     parser.add_argument("--only", nargs="+", help="Deploy only these named apps; does not delete others")
     parser.add_argument("--credentials-from", type=Path, help="Existing full secure parameter file for partial deployment")
     args = parser.parse_args()
+    args.output = private_path(args.output)
     revision = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
     lock = json.loads((HERE / "images.lock.json").read_text())
     fingerprint = config_digest()
@@ -450,6 +454,8 @@ def main():
             "imageLockDigest": hashlib.sha256((HERE / "images.lock.json").read_bytes()).hexdigest(),
         }.items()},
     }
+    if args.location:
+        parameters["parameters"]["location"] = {"value": args.location}
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(parameters), encoding="utf-8")
     print(f"Prepared {len(apps)} apps at {deployment_id}; parameter file contains secrets: keep outside git.")

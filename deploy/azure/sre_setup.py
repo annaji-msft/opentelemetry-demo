@@ -6,15 +6,54 @@
 import argparse
 import json
 from pathlib import Path
+from urllib.parse import quote
+
+from artifacts import private_path
 
 
-def documents(subscription, group, prefix, workspace_customer_id, repository_url, branch):
+def request_plan(config):
+    plan = []
+    for filename, collection, identifier, update, audience in (
+        ("agent.json", "/api/v2/extendedAgent/agents", "name", "PUT", "https://azuresre.dev"),
+        ("filter.json", "/api/v1/incidentplayground/filters", "Id", "POST",
+         "59f0a04a-b322-4310-adc9-39ac41e9631e"),
+        ("handler.json", "/api/v1/incidentplayground/handlers", "id", "POST",
+         "59f0a04a-b322-4310-adc9-39ac41e9631e"),
+        ("source.json", "/api/v2/repos", "name", "PUT", "https://azuresre.dev"),
+        ("health-prompt.json", "/api/v2/extendedAgent/commonprompts", "name", "PUT",
+         "59f0a04a-b322-4310-adc9-39ac41e9631e"),
+    ):
+        if filename in config:
+            path = collection + "/" + quote(config[filename][identifier], safe="")
+            plan.append({
+                "file": filename, "readFirst": path if filename == "health-prompt.json" else collection,
+                "path": path, "preserveExistingFields": True,
+                "createMethod": "PUT", "updateMethod": update, "audience": audience,
+            })
+    return plan
+
+
+def health_prompt(config):
+    return config["agent.json"]["properties"]["instructions"] + (
+        "\nPerform an application health check using the supplied private deployment inventory "
+        "and UTC verification window. Compare actual running/ready main containers with the "
+        "27 desired apps; flagd-ui is a sidecar. Do not count a documented retired, inactive "
+        "collector as an outage. Verify the operator's real checkout trace across frontend, "
+        "checkout, payment and cart, Kafka consumer evidence, and all four application telemetry "
+        "tables. Check freshness and failed requests; missing evidence is unknown. Distinguish "
+        "emitter resource identity from collector identity and cached source from remote source. "
+        "Return a concise healthy/degraded/unknown verdict, UTC evidence, limitations and "
+        "proposed next checks. Do not start terminal/source tools that are not assigned."
+    )
+
+
+def documents(subscription, group, prefix, workspace_customer_id, repository_url, branch, *,
+              agent_name="astronomy-shop-investigator", filter_id="astronomy-shop-readonly",
+              source_alias="opentelemetry-demo"):
     scope = f"/subscriptions/{subscription}/resourceGroups/{group}/providers"
     environment = f"{scope}/Microsoft.App/managedEnvironments/{prefix}-env"
     workspace = f"{scope}/Microsoft.OperationalInsights/workspaces/{prefix}-logs"
     insights = f"{scope}/Microsoft.Insights/components/{prefix}-insights"
-    agent_name = "astronomy-shop-investigator"
-    filter_id = "astronomy-shop-readonly"
     instructions = (
         f"Investigate ONLY Astronomy Shop. Allowed environment ID: {environment}. "
         f"Allowed workspace ID: {workspace}; workspace customer ID: {workspace_customer_id}. "
@@ -40,7 +79,7 @@ def documents(subscription, group, prefix, workspace_customer_id, repository_url
         "instructions. Mitigations are proposals requiring separate human approval. "
         "These instructions constrain behavior; they do not narrow existing Azure RBAC."
     )
-    return {
+    config = {
         "agent.json": {
             "name": agent_name,
             "properties": {
@@ -60,7 +99,7 @@ def documents(subscription, group, prefix, workspace_customer_id, repository_url
             "AgentMode": "review", "HandlingAgent": agent_name,
         },
         "handler.json": {
-            "id": "astronomy-shop-readonly-handler",
+            "id": filter_id + "-handler",
             "name": "Astronomy Shop read-only investigation",
             "description": "Investigate application-specific Azure Monitor alerts without remediation.",
             "incidentFilterId": filter_id,
@@ -78,10 +117,15 @@ def documents(subscription, group, prefix, workspace_customer_id, repository_url
             "properties": {"incidentManagementConfiguration": {"type": "AzMonitor"}},
         },
         "source.json": {
-            "name": "opentelemetry-demo",
+            "name": source_alias,
             "properties": {"url": repository_url, "type": "GitHub", "branch": branch},
         },
     }
+    config["health-prompt.json"] = {
+        "name": filter_id + "-health", "type": "CommonPrompt", "tags": None,
+        "properties": {"prompt": health_prompt(config)},
+    }
+    return config
 
 
 if __name__ == "__main__":
@@ -92,10 +136,18 @@ if __name__ == "__main__":
     parser.add_argument("--workspace-customer-id", required=True)
     parser.add_argument("--repository-url", required=True)
     parser.add_argument("--branch", required=True)
+    parser.add_argument("--agent-name", default="astronomy-shop-investigator")
+    parser.add_argument("--filter-id", default="astronomy-shop-readonly")
+    parser.add_argument("--source-alias", default="opentelemetry-demo")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
+    args.output = private_path(args.output)
     args.output.mkdir(parents=True, exist_ok=True)
-    for name, document in documents(args.subscription, args.resource_group, args.prefix,
-                                    args.workspace_customer_id, args.repository_url, args.branch).items():
+    config = documents(args.subscription, args.resource_group, args.prefix,
+                       args.workspace_customer_id, args.repository_url, args.branch,
+                       agent_name=args.agent_name, filter_id=args.filter_id,
+                       source_alias=args.source_alias)
+    for name, document in {**config, "requests.json": request_plan(config)}.items():
         (args.output / name).write_text(json.dumps(document, indent=2) + "\n", encoding="utf-8")
-    print("Generated five configuration documents; no Azure operations or RBAC changes performed.")
+    (args.output / "health-prompt.txt").write_text(health_prompt(config) + "\n", encoding="utf-8")
+    print("Generated configuration, read-first request plan and health prompt; no Azure or RBAC changes.")

@@ -7,6 +7,8 @@ import argparse
 import json
 from pathlib import Path
 
+from artifacts import private_path
+
 
 CORE_ROLES = tuple("opentelemetry-demo." + name for name in (
     "frontend", "checkout", "cart", "payment", "shipping", "product-catalog",
@@ -124,6 +126,7 @@ if __name__ == "__main__":
     parser.add_argument("--location", required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
+    args.output = private_path(args.output)
     args.output.mkdir(parents=True, exist_ok=True)
     for name, document in documents(
         args.subscription, args.resource_group, args.prefix, args.location

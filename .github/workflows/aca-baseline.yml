@@ -12,6 +12,8 @@ on:
       - "src/flagd/**"
       - "src/otel-collector/**"
       - ".github/workflows/aca-baseline.yml"
+      - "README.md"
+      - ".gitignore"
   push:
     paths:
       - "deploy/azure/**"
@@ -20,6 +22,8 @@ on:
       - "src/flagd/**"
       - "src/otel-collector/**"
       - ".github/workflows/aca-baseline.yml"
+      - "README.md"
+      - ".gitignore"
 
 permissions:
   contents: read
@@ -40,3 +44,22 @@ jobs:
         run: python -m unittest discover -s deploy/azure -p 'test_*.py' -v
       - name: Compile infrastructure without deploying
         run: az bicep build --file deploy/azure/main.bicep
+      - name: Lint public runbooks
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx --no-install markdownlint README.md deploy/azure/*.md
+      - name: Parse PowerShell examples without executing them
+        shell: pwsh
+        run: |
+          foreach ($file in Get-ChildItem deploy/azure -Filter *.md) {
+            $text = Get-Content -LiteralPath $file.FullName -Raw
+            # Extract fenced PowerShell examples for syntax parsing, never execution.
+            foreach ($block in [regex]::Matches($text, '(?s)```powershell\s*\n(.*?)```')) {
+              $tokens = $null
+              $errors = $null
+              [System.Management.Automation.Language.Parser]::ParseInput(
+                $block.Groups[1].Value, [ref]$tokens, [ref]$errors
+              ) | Out-Null
+              if ($errors.Count) { throw "$($file.Name): $($errors.Message -join '; ')" }
+            }
+          }

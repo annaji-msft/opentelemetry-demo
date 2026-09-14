@@ -6,15 +6,15 @@
 import argparse
 import concurrent.futures
 import json
-import shutil
-import subprocess
 import time
 from pathlib import Path
 
+from azure_cli import run
+
 
 def azure(arguments):
-    result = subprocess.run([shutil.which("az"), *arguments, "--output", "json", "--only-show-errors"],
-                            capture_output=True, text=True, encoding="utf-8", check=False)
+    result = run([*arguments, "--output", "json", "--only-show-errors"],
+                 capture_output=True, text=True, encoding="utf-8", check=False)
     if result.returncode:
         raise RuntimeError(result.stderr)
     return json.loads(result.stdout)
