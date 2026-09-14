@@ -155,7 +155,8 @@ customer impact or remediation.
 
 ## Actual faults and later increments
 
-The [scenario inventory](README.md#preserved-fault-inventory-all-off) preserves upstream
+The [scenario inventory](README.md#preserved-fault-inventory-all-off)
+preserves upstream
 flags, including documented quirks and ACA probe qualifications. All defaults
 remain off. A real failure exercise needs separate approval of the exact flag,
 expected impact, duration, observation predicates, reset method and verification.

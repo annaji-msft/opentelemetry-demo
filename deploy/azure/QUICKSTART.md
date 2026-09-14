@@ -52,7 +52,9 @@ Optional documentation linting:
 
 ```powershell
 npm ci --ignore-scripts --no-audit --no-fund
-npx --no-install markdownlint deploy\azure\*.md
+$markdown = Get-ChildItem deploy\azure -Filter *.md |
+  Select-Object -ExpandProperty FullName
+npx --no-install markdownlint @markdown
 ```
 
 ## Optional accelerator entrypoint and skill
