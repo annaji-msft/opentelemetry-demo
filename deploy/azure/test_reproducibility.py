@@ -102,7 +102,11 @@ class ReproducibilityTests(unittest.TestCase):
         # Match inline Markdown link destinations and repository-local script paths.
         links = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
         scripts = re.compile(r"deploy[\\/]azure[\\/][\w.-]+\.(?:py|ps1|bicep)")
-        for path in (ROOT / "deploy/azure").glob("*.md"):
+        docs = list((ROOT / "deploy/azure").glob("*.md"))
+        skill = ROOT / ".github/skills/astronomy-shop-accelerator/SKILL.md"
+        if skill.exists():
+            docs.append(skill)
+        for path in docs:
             text = path.read_text(encoding="utf-8")
             for target in links.findall(text):
                 if "://" not in target and not target.startswith("#"):

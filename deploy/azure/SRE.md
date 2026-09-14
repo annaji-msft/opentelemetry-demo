@@ -115,10 +115,12 @@ data-plane API as version-sensitive and re-read live responses after writes.
 | Incident platform | ARM `PATCH` existing agent, API `2026-01-01`, body `incident-platform.patch.json` |
 
 The source and extended-agent payloads require a top-level `name`. The filter
-accepts PascalCase input and returns camelCase output. On the exercised service,
-legacy `incidentplayground` writes required the Azure CLI token audience
-`59f0a04a-b322-4310-adc9-39ac41e9631e`; the `https://azuresre.dev` audience worked
-for other APIs but produced misleading HTTP 405 responses on these legacy writes.
+accepts PascalCase input and returns camelCase output. The verified working
+audience for the tested legacy `incidentplayground` requests was
+`59f0a04a-b322-4310-adc9-39ac41e9631e`. Earlier requests using
+`https://azuresre.dev` returned HTTP 405 while platform initialization was also
+in progress. That is not a controlled comparison proving the audience alone
+caused those failures or that the GUID is a universal service requirement.
 Never copy an access token into a file, chat or URL. Example invocation shape:
 
 ```powershell

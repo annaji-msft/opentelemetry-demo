@@ -50,6 +50,8 @@ your preferred deployment method:
   (this fork): [architecture and resources](deploy/azure/ARCHITECTURE.md),
   [deployment reference](deploy/azure/README.md), and
   [safe demo walkthrough](deploy/azure/DEMO.md).
+  A [repository-local onboarding skill](.github/skills/astronomy-shop-accelerator/SKILL.md)
+  orchestrates the same CLI workflow; Copilot is not required.
 
 ## Documentation
 

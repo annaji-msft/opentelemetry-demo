@@ -1,0 +1,21 @@
+{
+  "privateDirectory": "YOUR_PRIVATE_ABSOLUTE_DIRECTORY",
+  "application": {
+    "subscriptionId": "YOUR_APPLICATION_SUBSCRIPTION_ID",
+    "resourceGroup": "YOUR_DEDICATED_APPLICATION_RG",
+    "location": "YOUR_SUPPORTED_REGION",
+    "prefix": "astronomy-demo",
+    "deploymentId": "baseline-001"
+  },
+  "source": {
+    "repositoryUrl": "https://github.com/YOUR_OWNER/opentelemetry-demo.git",
+    "branch": "anganti-microsoft-astronomy-shop-on-azure"
+  },
+  "sre": {
+    "mode": "reuse-existing",
+    "subscriptionId": "YOUR_AGENT_SUBSCRIPTION_ID",
+    "resourceGroup": "YOUR_AGENT_RG",
+    "agentName": "YOUR_EXISTING_AGENT_NAME",
+    "endpoint": "https://YOUR_AGENT_HOST"
+  }
+}

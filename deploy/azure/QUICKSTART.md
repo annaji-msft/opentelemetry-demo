@@ -9,7 +9,8 @@ to recreate or overwrite that deployment.
 ## Prerequisites
 
 Use PowerShell 7, Git, Python 3.12+, Azure CLI with Bicep and the Container Apps
-extension, and Node/npm for documentation linting. No local Docker is needed.
+extension. Node/npm are optional for documentation linting; Azure MCP is not
+required because the tooling uses Azure CLI/REST. No local Docker is needed.
 Install tools from their official distributions and authenticate interactively;
 never paste credentials into generated files or this repository.
 
@@ -34,9 +35,7 @@ $demoRoot = (Get-Location).Path
 function az { python (Join-Path $demoRoot 'deploy\azure\azure_cli.py') @args }
 git rev-parse HEAD
 python -m pip install -r deploy\azure\requirements.txt
-npm ci --ignore-scripts --no-audit --no-fund
 python -m unittest discover -s deploy\azure -p 'test_*.py' -v
-npx --no-install markdownlint deploy\azure\*.md
 az bicep build --file deploy\azure\main.bicep
 ```
 
@@ -48,6 +47,56 @@ Azure CLI's bundled interpreter on Windows, bypassing `az.cmd` shell parsing.
 It preserves ampersands, percent signs, quotes, parentheses and newlines without
 echoing a credential-bearing command. It changes no Azure defaults or shell
 profile. You can instead invoke `python deploy\azure\azure_cli.py ...` explicitly.
+
+Optional documentation linting:
+
+```powershell
+npm ci --ignore-scripts --no-audit --no-fund
+npx --no-install markdownlint deploy\azure\*.md
+```
+
+## Optional accelerator entrypoint and skill
+
+[The repository-local skill](../../.github/skills/astronomy-shop-accelerator/SKILL.md)
+walks the same phases as this guide. People without Copilot can use the thin
+local-only entrypoint or the individual commands below.
+
+Copy `accelerator.example.json` into private storage, fill its nonsecret inputs,
+and choose `reuse-existing` or `provision-new-guided` for SRE. Do not add
+credentials. The latter mode means official portal/admin onboarding followed
+by resuming configuration, not unattended or live-verified agent creation.
+
+```powershell
+$operatorConfig = 'YOUR_PRIVATE_ABSOLUTE_CONFIG_PATH'
+Copy-Item deploy\azure\accelerator.example.json $operatorConfig
+# Edit the copied nonsecret settings before proceeding.
+python deploy\azure\accelerator.py --config $operatorConfig --phase prepare
+$settings = Get-Content -LiteralPath $operatorConfig -Raw | ConvertFrom-Json
+$subscription = $settings.application.subscriptionId
+$group = $settings.application.resourceGroup
+$location = $settings.application.location
+$prefix = $settings.application.prefix
+$privateDir = $settings.privateDirectory
+$params = Join-Path $privateDir 'baseline.parameters.json'
+$forkUrl = $settings.source.repositoryUrl
+$branch = $settings.source.branch
+```
+
+This delegates `prepare.py`; it does not deploy. Continue through the reviewed
+`Deploy.ps1` preview/apply flow below. Keep these configured variables and skip
+the alternative placeholder assignments and repeated preparation command below.
+Once deployment supplies the real
+workspace customer ID and the hosted agent has been onboarded:
+
+```powershell
+python deploy\azure\accelerator.py --config $operatorConfig --phase sre-config `
+  --workspace-customer-id $workspaceCustomerId
+```
+
+This delegates `sre_setup.py` and `alert_setup.py`, creating private request
+documents, disabled alerts and `operator-targets.json`. It makes no Azure writes
+and does not apply native API requests or grant permissions. The individual CLI
+commands remain the authoritative equivalent flow, with explicit approval gates.
 
 ## Operator inputs and application deployment
 
