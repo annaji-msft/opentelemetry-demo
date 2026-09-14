@@ -77,7 +77,7 @@ def collector_config():
     config["receivers"]["otlp"]["protocols"]["grpc"]["endpoint"] = "0.0.0.0:4317"
     config["receivers"]["otlp"]["protocols"]["http"]["endpoint"] = "0.0.0.0:4318"
     config["receivers"]["http_check/frontend-proxy"]["targets"][0]["endpoint"] = "https://${env:FRONTEND_PROXY_ADDR}"
-    config["processors"]["resource_detection"] = {"detectors": ["env"]}
+    config["processors"]["resource_detection"] = {"detectors": ["env"], "override": False}
     config["processors"]["batch"] = {}
     config["exporters"] = {
         k: v for k, v in observability["exporters"].items() if k != "otlp_grpc/firepit"

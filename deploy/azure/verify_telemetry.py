@@ -35,7 +35,9 @@ union withsource=Signal AppRequests, AppDependencies, AppTraces, AppMetrics
 union withsource=Signal AppRequests, AppDependencies
 | where TimeGenerated >= datetime({since}) and OperationId == '{trace_id}'
 | summarize Records=count(), Failures=countif(Success == false),
-    Latest=max(TimeGenerated) by Signal, AppRoleName
+    Latest=max(TimeGenerated) by Signal, AppRoleName, AppRoleInstance, AppVersion,
+    Deployment=tostring(Properties['deployment.id']),
+    SourceRevision=tostring(Properties['vcs.ref.head.revision'])
 """
     deadline = time.monotonic() + timeout
     while True:
@@ -49,6 +51,13 @@ union withsource=Signal AppRequests, AppDependencies
         } <= roles:
             if any(int(r["Failures"]) for r in trace):
                 raise RuntimeError(f"Smoke trace contains failed spans: {trace}")
+            for row in trace:
+                service = row["AppRoleName"].removeprefix("opentelemetry-demo.")
+                if service in {"frontend", "checkout", "payment", "cart"} and (
+                    not row["AppRoleInstance"].startswith(service + "-")
+                    or not row["Deployment"] or not row["SourceRevision"] or not row["AppVersion"]
+                ):
+                    raise RuntimeError(f"Smoke trace has missing or overwritten service metadata: {row}")
             return {"signals": signals, "trace": trace, "traceId": trace_id}
         if time.monotonic() >= deadline:
             raise RuntimeError(f"Missing application telemetry after bounded wait. Signals={signals}; trace={trace}")

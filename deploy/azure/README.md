@@ -198,6 +198,9 @@ catalog/ads/recommendations/cart, requires an order/tracking ID, checks cart
 emptying and blocked control paths. `verify_telemetry.py` requires recent
 application AppRequests, AppDependencies, AppTraces and AppMetrics (excluding
 collector self-telemetry), and a correlated frontend/checkout/payment/cart trace.
+It also checks emitting-service instance, version, deployment and source metadata.
+The shared collector uses non-overriding resource detection so its own identity
+cannot replace the application attributes.
 Its bounded ingestion wait fails rather than falling back to fixtures.
 
 Also inspect accounting/fraud-detection consumer progress, local backend health,
@@ -240,9 +243,11 @@ Use explicit Review mode for any future response plan/task, plus tool-access
 restrictions for external writes: Review mode alone is not a blanket approval
 gate for Teams/email/MCP actions. Configuration scope is not an IAM isolation
 guarantee if the existing agent identity has broader inherited access. Changing
-those existing permissions is a separate explicit decision. No incident
-triggers, schedules, automatic remediation or fault injection belong in this
-baseline.
+those existing permissions is a separate explicit decision. The baseline
+deployer does not configure incident triggers, schedules, automatic remediation
+or fault injection. The separately authorized native alert-to-read-only-
+investigation extension is documented in [SRE.md](SRE.md); it does not authorize
+mitigation or outbound notifications.
 
 ## Preserved fault inventory (all off)
 

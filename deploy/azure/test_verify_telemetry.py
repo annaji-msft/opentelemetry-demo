@@ -18,11 +18,24 @@ class TelemetryGateTests(unittest.TestCase):
     def test_requires_successful_cross_service_smoke_trace(self):
         signals = [{"Signal": signal} for signal in
                    ("AppRequests", "AppDependencies", "AppTraces", "AppMetrics")]
-        spans = [{"AppRoleName": f"opentelemetry-demo.{role}", "Failures": "0"}
+        spans = [{"AppRoleName": f"opentelemetry-demo.{role}", "Failures": "0",
+                  "AppRoleInstance": f"{role}-baseline-test", "Deployment": "baseline-test",
+                  "SourceRevision": "b" * 40, "AppVersion": "3.0.0"}
                  for role in ("frontend", "checkout", "payment", "cart")]
         with patch("verify_telemetry.query", side_effect=[signals, spans]):
             result = verify("subscription", "workspace", "a" * 32, "2026-01-01T00:00:00Z", 0)
             self.assertEqual(result["traceId"], "a" * 32)
+
+    def test_rejects_collector_overwriting_service_identity(self):
+        signals = [{"Signal": signal} for signal in
+                   ("AppRequests", "AppDependencies", "AppTraces", "AppMetrics")]
+        spans = [{"AppRoleName": f"opentelemetry-demo.{role}", "Failures": "0",
+                  "AppRoleInstance": "otel-collector-baseline-test", "Deployment": "baseline-test",
+                  "SourceRevision": "b" * 40, "AppVersion": "3.0.0"}
+                 for role in ("frontend", "checkout", "payment", "cart")]
+        with patch("verify_telemetry.query", side_effect=[signals, spans]):
+            with self.assertRaisesRegex(RuntimeError, "overwritten service metadata"):
+                verify("subscription", "workspace", "a" * 32, "2026-01-01T00:00:00Z", 0)
 
     def test_failed_span_fails_gate(self):
         signals = [{"Signal": signal} for signal in

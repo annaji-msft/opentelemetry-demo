@@ -71,6 +71,7 @@ class DeploymentTests(unittest.TestCase):
         self.assertIn("transform/redact_sensitive_data", config["service"]["pipelines"]["traces"]["processors"])
         self.assertNotIn("opamp", config["service"]["extensions"])
         self.assertNotIn("InstrumentationKey=", collector_config())
+        self.assertFalse(config["processors"]["resource_detection"]["override"])
 
     def test_gateway_has_no_admin_routes_or_fault_filter(self):
         config = yaml.safe_load(proxy_config())
