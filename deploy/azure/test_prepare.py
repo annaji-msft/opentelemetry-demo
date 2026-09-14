@@ -97,6 +97,8 @@ class DeploymentTests(unittest.TestCase):
         self.assertNotIn("initContainers", checkout["template"])
         collector = next(a for a in self.apps if a["name"] == "telemetry-gateway")
         self.assertNotIn("initContainers", collector["template"])
+        collector_env = {e["name"]: e.get("value") for e in collector["template"]["containers"][0]["env"]}
+        self.assertNotIn("service.instance.id=", collector_env["OTEL_RESOURCE_ATTRIBUTES"])
 
     def test_explicit_collector_dns_and_flag_sync_port(self):
         for app in self.apps:

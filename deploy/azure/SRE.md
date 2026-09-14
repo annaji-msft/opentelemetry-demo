@@ -31,8 +31,9 @@ proof of that runtime capability.
 `commonTools` is a separate built-in-tool property from `tools`.
 The setup
 requests `commonTools=[RunAzCliReadCommands]` as well.
-Its accepted readback is not
-yet proof of effective runtime isolation. Full scope restrictions are repeated
+After this correction, a repeated native investigation executed four scoped
+read commands and obeyed the TEST early-stop guide. This demonstrates observed
+behavior, not hard tool or IAM isolation. Full scope restrictions are repeated
 in the handler guide because that guide was visibly injected into the incident.
 
 ## Generate and review configuration
@@ -42,6 +43,25 @@ python deploy\azure\sre_setup.py --subscription $subscription `
   --resource-group $group --workspace-customer-id $workspaceCustomerId `
   --repository-url $forkUrl --branch $deployedBranch --output $privateConfigDir
 ```
+
+Generate the separate Azure Monitor rule bodies with
+`python deploy\azure\alert_setup.py --subscription <id> --resource-group <group>
+--location <region> --output <private-directory>` (one command line).
+Both are disabled initially, Sev2, evaluated every minute, scoped to the exact
+demo workspace, and have no action groups. Apply using ARM PUT to each explicit
+`Microsoft.Insights/scheduledQueryRules/<rule-name>?api-version=2023-12-01`
+resource ID after reviewing existing ownership and the body.
+The failure rule requires at least three failed request records **and** at least
+20% failures per core service in five minutes. Unknown success status is not
+counted as a failure. The gap rule means no core request spans for ten minutes;
+it assumes the load generator is running and is not proof of an app outage.
+`threshold-tests.kql` exercises nine query-local fixture cases against the same
+failure predicate without ingesting fake telemetry. Require nine `Passed=true`
+rows from the dedicated workspace before enabling the rules. Keep TEST routing
+rules separate and disabled after verification. Enable permanent rules only
+after the real healthy checkout, load-generator and telemetry gates pass.
+`gap-tests.kql` additionally requires five passing query-local cases: empty,
+stale, self-only and unattributed data trigger; recent checkout data does not.
 
 Keep generated resource IDs/configuration outside the public repository. The
 generator makes no Azure calls. Before applying, inspect the existing agent,

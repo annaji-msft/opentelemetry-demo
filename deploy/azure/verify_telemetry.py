@@ -11,6 +11,8 @@ import time
 
 
 def query(subscription, workspace, kql):
+    # Windows az.cmd does not reliably forward multiline argument values.
+    kql = " ".join(kql.splitlines()).strip()
     result = subprocess.run([
         shutil.which("az"), "monitor", "log-analytics", "query",
         "--subscription", subscription, "--workspace", workspace,
@@ -54,7 +56,7 @@ union withsource=Signal AppRequests, AppDependencies
             for row in trace:
                 service = row["AppRoleName"].removeprefix("opentelemetry-demo.")
                 if service in {"frontend", "checkout", "payment", "cart"} and (
-                    not row["AppRoleInstance"].startswith(service + "-")
+                    not row["AppRoleInstance"] or row["AppRoleInstance"].startswith("otel-collector-")
                     or not row["Deployment"] or not row["SourceRevision"] or not row["AppVersion"]
                 ):
                     raise RuntimeError(f"Smoke trace has missing or overwritten service metadata: {row}")

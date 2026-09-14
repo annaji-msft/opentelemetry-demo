@@ -201,6 +201,8 @@ collector self-telemetry), and a correlated frontend/checkout/payment/cart trace
 It also checks emitting-service instance, version, deployment and source metadata.
 The shared collector uses non-overriding resource detection so its own identity
 cannot replace the application attributes.
+Native SDK-generated instance IDs (including UUIDs) are preserved. The gateway
+does not supply its own instance ID as a fallback for emitters that omit one.
 Its bounded ingestion wait fails rather than falling back to fixtures.
 
 Also inspect accounting/fraud-detection consumer progress, local backend health,

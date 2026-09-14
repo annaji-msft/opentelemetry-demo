@@ -199,6 +199,10 @@ def prepare(lock, revision, deployment_id, passwords=None):
         if name == "opensearch":
             env["node.store.allow_mmap"] = "false"
         if name == "otel-collector":
+            env["OTEL_RESOURCE_ATTRIBUTES"] = ",".join(
+                attribute for attribute in env["OTEL_RESOURCE_ATTRIBUTES"].split(",")
+                if not attribute.startswith("service.instance.id=")
+            )
             env["OTEL_COLLECTOR_HOST"] = "0.0.0.0"
             env["APPLICATIONINSIGHTS_CONNECTION_STRING"] = {"secretRef": "app-insights"}
             env["POSTGRES_MONITORING_PASSWORD"] = {"secretRef": "monitoring-password"}
