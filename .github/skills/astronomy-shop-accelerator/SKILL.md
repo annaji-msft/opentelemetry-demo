@@ -101,6 +101,15 @@ Contributor identity. Native incident acknowledgment can change alert metadata.
 
 ## 4. Real health and verification gates
 
+Run the DEMO.md current observability preflight before any incident exercise:
+`verify_telemetry.py --preflight` with explicit subscription, app resource group,
+workspace name and customer ID. Inspect cap, ingestion status and next reset;
+abort on OverQuota, unknown status, stale/missing signals or read errors.
+Require all four application tables fresh within five minutes and recheck
+immediately before an approved activation. Wait for reset and reverify, or seek
+explicit human budget approval; never auto-raise the cap. This read-only Azure
+check is separate from the prepare-only accelerator's no-Azure-call contract.
+
 Run `verify_revisions.py`, `verify_shop.py` and `verify_telemetry.py` with the
 actual start timestamp and returned trace ID. Require:
 
@@ -123,6 +132,12 @@ Use `routing_test.py` and the exact procedure in DEMO.md. It generates a separat
 TEST filter/handler and disabled real-metric alert with a maximum 30-minute UTC
 expiry. Native test filters default enabled: disable them until ready.
 Keep permanent TEST exclusion and no merging.
+
+Synthetic routing was historically verified, but an actual cap-induced silence
+did not produce the expected telemetry-gap alert/automatic incident. Available
+Resource Health and successful manual KQL do not certify managed absence-alert
+evaluation. Treat that behavior as unresolved, label manual SRE diagnostics as
+manual, and never claim earlier healthy evidence proves current ingestion.
 
 After explicit test approval, enable only this expiring route. Prove the actual
 alert fire and scanner-created investigation, inspect scoped tool execution,

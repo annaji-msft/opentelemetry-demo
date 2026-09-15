@@ -161,6 +161,11 @@ local observability and all-off flags. Keep evidence privately; generated files
 are not repository inputs. Their producers reject output paths inside this
 checkout, and `.gitignore` provides additional accidental-staging safeguards.
 
+Before an incident exercise, rerun the
+[current cap/freshness preflight](DEMO.md#mandatory-current-observability-preflight).
+Abort on OverQuota or stale signals; a successful earlier checkout is not proof
+of current ingestion or managed telemetry-gap alerting.
+
 ## Existing or newly onboarded hosted SRE Agent
 
 The app template deliberately **does not provision an SRE Agent**. A new user

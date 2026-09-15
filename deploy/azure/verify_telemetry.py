@@ -10,6 +10,40 @@ import time
 from azure_cli import run
 
 
+def preflight(subscription, group, workspace_name, workspace):
+    result = run([
+        "monitor", "log-analytics", "workspace", "show",
+        "--subscription", subscription, "--resource-group", group,
+        "--workspace-name", workspace_name,
+        "--query", "{customerId:customerId,capping:workspaceCapping}",
+        "--output", "json", "--only-show-errors",
+    ], capture_output=True, text=True, encoding="utf-8", check=False)
+    if result.returncode:
+        raise RuntimeError(result.stderr)
+    settings = json.loads(result.stdout)
+    if str(settings.get("customerId", "")).lower() != workspace.lower():
+        raise RuntimeError("Workspace customer ID does not match the inspected resource; abort the exercise.")
+    capping = settings.get("capping") or {}
+    print(json.dumps({"workspaceCapping": capping}), flush=True)
+    if capping.get("dataIngestionStatus") != "RespectQuota":
+        raise RuntimeError(
+            f"Ingestion is blocked or unknown; abort the exercise. Cap/status/reset: {capping}. "
+            "Wait for reset and reverify, or obtain explicit budget approval; never auto-raise the cap."
+        )
+    rows = query(subscription, workspace, """
+union withsource=Signal AppRequests, AppDependencies, AppTraces, AppMetrics
+| where TimeGenerated > ago(5m) and TimeGenerated <= now()
+| where AppRoleName startswith 'opentelemetry-demo.'
+| where AppRoleName !contains 'otelcol' and AppRoleName !endswith '.otel-collector'
+| summarize Records=count(), Latest=max(TimeGenerated) by Signal
+""")
+    fresh = {row["Signal"] for row in rows if int(row["Records"]) > 0}
+    if not {"AppRequests", "AppDependencies", "AppTraces", "AppMetrics"} <= fresh:
+        raise RuntimeError(f"Missing/stale application telemetry within five minutes; abort the exercise: {rows}")
+    return {"workspaceCapping": capping, "freshSignals": rows,
+            "limitation": "Read-only preflight passed; this does not prove managed alert evaluation or routing."}
+
+
 def query(subscription, workspace, kql):
     result = run([
         "monitor", "log-analytics", "query",
@@ -69,8 +103,18 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--subscription", required=True)
     parser.add_argument("--workspace", required=True)
-    parser.add_argument("--trace-id", required=True)
-    parser.add_argument("--since", required=True)
+    parser.add_argument("--trace-id")
+    parser.add_argument("--since")
+    parser.add_argument("--preflight", action="store_true", help="Read ingestion cap and current signal freshness only")
+    parser.add_argument("--resource-group")
+    parser.add_argument("--workspace-name")
     parser.add_argument("--timeout", type=int, default=300)
     args = parser.parse_args()
-    print(json.dumps(verify(args.subscription, args.workspace, args.trace_id, args.since, args.timeout), indent=2))
+    if args.preflight:
+        if not args.resource_group or not args.workspace_name:
+            parser.error("--preflight requires --resource-group and --workspace-name")
+        print(json.dumps(preflight(args.subscription, args.resource_group, args.workspace_name, args.workspace), indent=2))
+    else:
+        if not args.trace_id or not args.since:
+            parser.error("Trace verification requires --trace-id and --since")
+        print(json.dumps(verify(args.subscription, args.workspace, args.trace_id, args.since, args.timeout), indent=2))

@@ -67,6 +67,23 @@ The generators below intentionally remain disabled-by-default for new
 deployments; this recorded activation is not permission to enable another
 environment without its own healthy-baseline checks.
 
+Later, daily-cap exhaustion stopped application ingestion. The manual gap query
+returned one matching `Requests=0` row, yet no expected gap alert or automatic
+incident was observed. Exact-rule Resource Health reported Available with no
+historical errors; that did not explain or validate managed evaluator behavior.
+The SRE investigation of this condition was manually initiated. Commissioning
+proof above is historical, not a claim of presently healthy telemetry or proven
+cap-induced absence detection. No quota, threshold, rule or permission was
+changed to hide the gap.
+
+Use [the mandatory current preflight](DEMO.md#mandatory-current-observability-preflight)
+before an exercise; abort on cap exhaustion or stale data. An ingestion warning
+companion monitor is future, operator-reviewed work, not installed here. Azure's
+[daily-cap guidance](https://learn.microsoft.com/azure/azure-monitor/logs/daily-cap)
+describes a five-minute query using `_LogOperation`, `Category =~ 'Ingestion'`
+and `Detail contains 'OverQuota'`. Its schema, managed evaluation and actual
+routing must be validated before adoption; do not substitute it speculatively.
+
 ## Generate and review configuration
 
 ```powershell

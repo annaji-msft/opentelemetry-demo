@@ -10,6 +10,30 @@ fault or prove outage detection, automatic repair or postmortem publication.
 
 ## Healthy application and investigation
 
+### Mandatory current observability preflight
+
+Before any incident exercise, including a separately approved real fault,
+inspect the actual workspace cap/status/reset and current application signals:
+
+```powershell
+python deploy\azure\verify_telemetry.py --preflight --subscription $subscription `
+  --resource-group $group --workspace-name "$prefix-logs" `
+  --workspace $workspaceCustomerId
+if ($LASTEXITCODE -ne 0) { throw 'Observability preflight failed; do not start an incident exercise.' }
+```
+
+This read-only check prints `dailyQuotaGb`, `dataIngestionStatus` and
+`quotaNextResetTime`, verifies the workspace customer ID, and requires all four
+application tables to contain records from the last five minutes. It aborts on
+OverQuota, unknown cap state, stale/missing data or query failure. Successful
+checkout or collector readiness alone is insufficient. Rerun immediately before
+any approved activation; an earlier commissioning result is not a current gate.
+Wait for the reported reset and verify fresh ingestion, or seek explicit human
+budget approval for a cap change. Never raise the cap automatically. Keep the
+prepare-only accelerator local-only; it does not run this Azure preflight.
+
+### Functional and investigation checks
+
 1. Run `verify_revisions.py` against the private desired parameter file. Require
    all 27 apps' main containers running and ready; flagd-ui is a sidecar.
 2. Run `verify_shop.py` and `verify_telemetry.py` with the actual start timestamp
@@ -47,6 +71,17 @@ inspect its actual response. For OpenSearch, check a fresh application log in
 from commissioning errors. No dashboard/backend is made public for this demo.
 
 ## Permanent monitoring
+
+**Observed limitation:** the historically verified synthetic routing tests do
+not establish end-to-end absence detection. During a later real daily-cap
+exhaustion, ingestion stopped and the gap query returned `Requests=0`, but no
+expected Azure gap alert or automatic SRE incident was observed. Exact-rule
+Resource Health was Available without reported historical errors. Neither that
+status nor successful manual KQL/query-local fixtures certifies the managed
+evaluator or alert routing. The cause remains unresolved; do not infer a fix.
+The subsequent SRE diagnostic was manually initiated, not automatic detection.
+Historical healthy evidence remains as-of its verification timestamps, not a
+claim of currently healthy telemetry.
 
 The commissioned deployment has both permanent rules **enabled**. New generated
 rules remain disabled until the new environment passes its gates. See
